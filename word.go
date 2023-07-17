@@ -17,3 +17,14 @@ func main() {
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
+func handleService(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodPost:
+		handleStoreWord(w, r)
+	case http.MethodGet:
+		handleSearchWord(w, r)
+	default:
+		w.WriteHeader(http.StatusMethodNotAllowed)
+	}
+}
+

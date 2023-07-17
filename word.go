@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"sync"
 )
 
@@ -28,3 +30,18 @@ func handleService(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func handleStoreWord(w http.ResponseWriter, r *http.Request) {
+	word := r.FormValue("word")
+	if !isValidWord(word) {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintln(w, "Incorrect format")
+		return
+	}
+
+	word = strings.ToLower(word)
+	storageLock.Lock()
+	defer storageLock.Unlock()
+	storage[word]++
+
+	fmt.Fprintf(w, "'%s' stored successfully", word)
+}

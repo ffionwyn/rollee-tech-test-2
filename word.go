@@ -71,6 +71,7 @@ func handleSearchWord(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "No matching word found in the storage")
 		return
 	}
+	fmt.Fprintf(w, "Most frequent word with prefix '%s': %s", prefix, getMaxWordWithPrefix(prefix))
 }
 
 func getMaxWordWithPrefix(prefix string) string {

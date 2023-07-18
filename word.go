@@ -20,18 +20,12 @@ func main() {
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
-func handleService(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodPost:
-		handleStoreWord(w, r)
-	case http.MethodGet:
-		handleSearchWord(w, r)
-	default:
-		w.WriteHeader(http.StatusMethodNotAllowed)
-	}
-}
-
 func handleStoreWord(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+
 	word := r.FormValue("word")
 	if !isValidWord(word) {
 		w.WriteHeader(http.StatusBadRequest)
@@ -48,6 +42,11 @@ func handleStoreWord(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleSearchWord(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+
 	prefix := r.FormValue("prefix")
 	if !isValidWord(prefix) {
 		w.WriteHeader(http.StatusBadRequest)

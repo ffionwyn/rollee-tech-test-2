@@ -73,3 +73,18 @@ func handleSearchWord(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func getMaxWordWithPrefix(prefix string) string {
+	var maxWord string
+	maxCount := 0
+
+	storageLock.RLock()
+	defer storageLock.RUnlock()
+	for word, count := range storage {
+		wordLower := strings.ToLower(word)
+		if strings.HasPrefix(wordLower, prefix) && count > maxCount {
+			maxWord = word
+			maxCount = count
+		}
+	}
+	return maxWord
+}

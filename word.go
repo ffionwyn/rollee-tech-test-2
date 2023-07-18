@@ -9,6 +9,8 @@ import (
 	"sync"
 )
 
+var maxWord string
+
 var (
 	storage     = make(map[string]int)
 	storageLock sync.RWMutex
@@ -63,6 +65,7 @@ func handleSearchWord(w http.ResponseWriter, r *http.Request) {
 		wordLower := strings.ToLower(word)
 		if strings.HasPrefix(wordLower, prefix) && count > maxCount {
 			maxCount = count
+			maxWord = word
 		}
 	}
 
@@ -72,6 +75,7 @@ func handleSearchWord(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Fprintf(w, "Most frequent word with prefix '%s': %s", prefix, getMaxWordWithPrefix(prefix))
+	fmt.Println("Result:", maxWord)
 }
 
 func getMaxWordWithPrefix(prefix string) string {

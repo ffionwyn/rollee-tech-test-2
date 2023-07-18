@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"regexp"
 	"strings"
 	"sync"
-	"unicode"
 )
 
 var (
@@ -92,11 +92,7 @@ func getMaxWordWithPrefix(prefix string) string {
 }
 
 func isValidWord(word string) bool {
-	for _, char := range word {
-		if !unicode.IsLetter(char) {
-			return false
-		}
-	}
-	return true
+	validWordRegex := regexp.MustCompile(`^[a-zA-Z]+$`)
+	return validWordRegex.MatchString(word)
 }
 

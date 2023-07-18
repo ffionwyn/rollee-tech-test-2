@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 	"sync"
+	"unicode"
 )
 
 var (
@@ -89,3 +90,13 @@ func getMaxWordWithPrefix(prefix string) string {
 	}
 	return maxWord
 }
+
+func isValidWord(word string) bool {
+	for _, char := range word {
+		if !unicode.IsLetter(char) {
+			return false
+		}
+	}
+	return true
+}
+

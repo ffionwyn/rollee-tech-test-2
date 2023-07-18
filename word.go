@@ -50,12 +50,11 @@ func handleSearchWord(w http.ResponseWriter, r *http.Request) {
 	prefix := r.FormValue("prefix")
 	if !isValidWord(prefix) {
 		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintln(w, "Invalid format")
+		fmt.Fprintln(w, "Invalid prefix format")
 		return
 	}
 
 	prefix = strings.ToLower(prefix)
-	var maxWord string
 	maxCount := 0
 
 	storageLock.RLock()
@@ -63,14 +62,13 @@ func handleSearchWord(w http.ResponseWriter, r *http.Request) {
 	for word, count := range storage {
 		wordLower := strings.ToLower(word)
 		if strings.HasPrefix(wordLower, prefix) && count > maxCount {
-			maxWord = word
 			maxCount = count
 		}
 	}
 
 	if maxCount == 0 {
 		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintln(w, "No matching word found in storage")
+		fmt.Fprintln(w, "No matching word found in the storage")
 		return
 	}
 }

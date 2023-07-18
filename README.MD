@@ -13,7 +13,7 @@ POST /service/word="ab"
 POST /service/word="ab"
 
 GET /service/prefix="a"     => response: "ab"
-GET /service/prevfix="ab"   => response: "ab"
+GET /service/prefix="ab"   => response: "ab"
 GET /service/prefix="abc"   => response: "abc"
 GET /service/prefix="d"     => response: null
 ```

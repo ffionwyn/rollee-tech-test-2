@@ -92,6 +92,6 @@ func getMaxWordWithPrefix(prefix string) string {
 }
 
 func isValidWord(word string) bool {
-	validWordRegex := regexp.MustCompile(`^[a-zA-Z]+$`)
+	validWordRegex := regexp.MustCompile(`^([a-zA-Z])+$`)
 	return validWordRegex.MatchString(word)
 }

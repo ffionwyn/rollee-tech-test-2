@@ -17,12 +17,14 @@ var (
 )
 
 func main() {
+	go func() {
+		log.Println(http.ListenAndServe("localhost:8080", nil))
+	}()
+
 	router := gin.Default()
 
 	router.POST("/store", handleStoreWord)
 	router.GET("/search", handleSearchWord)
-
-	log.Fatal(router.Run(":8080"))
 }
 
 func handleStoreWord(c *gin.Context) {

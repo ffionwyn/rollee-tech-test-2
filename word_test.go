@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -48,9 +49,15 @@ func TestHandleSearchWord(t *testing.T) {
 		t.Errorf("expected status code %d, but got %d", http.StatusOK, w.Code)
 	}
 
-	expectedMessage := "most frequent word with prefix 'do': dog"
-	if body := w.Body.String(); body != expectedMessage {
-		t.Errorf("expected response body '%s', but got '%s'", expectedMessage, body)
+	var response map[string]string
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	if err != nil {
+		t.Errorf("failed to unmarshal JSON response: %v", err)
+	}
+
+	expectedMessage := `Most frequent word with prefix "do": dog`
+	if message, ok := response["message"]; !ok || message != expectedMessage {
+		t.Errorf("expected response body %q, but got %q", expectedMessage, message)
 	}
 }
 

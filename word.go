@@ -64,7 +64,7 @@ func handleSearchWord(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "No matching word found in the storage"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("Most frequent word with prefix '%s': %s", prefix, maxWord)})
+	c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf(`Most frequent word with prefix "%s": %s`, prefix, maxWord)})
 	fmt.Println("Result:", maxWord)
 }
 

@@ -53,4 +53,20 @@ func TestHandleSearchWord(t *testing.T) {
 	}
 }
 
+func TestIsValidWord(t *testing.T) {
+	if !isValidWord("hello") { // testing valid words
+		t.Error("Expected 'hello' to be a valid word, but got invalid")
+	}
+	if !isValidWord("SHORTS") {
+		t.Error("Expected 'SHORTS' to be a valid word, but got invalid")
+	}
+
+	if isValidWord("123") { // testing invalid words
+		t.Error("Expected '123' to be an invalid word, but got valid")
+	}
+	if isValidWord("hello-world") {
+		t.Error("Expected 'hello-world' to be an invalid word, but got valid")
+	}
+}
+
 

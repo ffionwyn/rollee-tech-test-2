@@ -7,6 +7,8 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+
+	"github.com/gin-gonic/gin"
 )
 
 var maxWord string
@@ -17,21 +19,18 @@ var (
 )
 
 func main() {
-	http.HandleFunc("/store", handleStoreWord)
-	http.HandleFunc("/search", handleSearchWord)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	router := gin.Default()
+
+	router.POST("/store", handleStoreWord)
+	router.GET("/search", handleSearchWord)
+
+	log.Fatal(router.Run(":8080"))
 }
 
-func handleStoreWord(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		return
-	}
-
-	word := r.FormValue("word")
+func handleStoreWord(c *gin.Context) {
+	word := c.PostForm("word")
 	if !isValidWord(word) {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintln(w, "Incorrect format")
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "incorrect format"})
 		return
 	}
 
@@ -40,19 +39,13 @@ func handleStoreWord(w http.ResponseWriter, r *http.Request) {
 	defer storageLock.Unlock()
 	storage[word]++
 
-	fmt.Fprintf(w, "'%s' stored successfully", word)
+	c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("'%s' stored successfully", word)})
 }
 
-func handleSearchWord(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		return
-	}
-
-	prefix := r.FormValue("prefix")
+func handleSearchWord(c *gin.Context) {
+	prefix := c.DefaultQuery("prefix", "")
 	if !isValidWord(prefix) {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintln(w, "Invalid prefix format")
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Invalid prefix format"})
 		return
 	}
 
@@ -70,11 +63,10 @@ func handleSearchWord(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if maxCount == 0 {
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintln(w, "No matching word found in the storage")
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "No matching word found in the storage"})
 		return
 	}
-	fmt.Fprintf(w, "Most frequent word with prefix '%s': %s", prefix, getMaxWordWithPrefix(prefix))
+	c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("Most frequent word with prefix '%s': %s", prefix, getMaxWordWithPrefix(prefix))})
 	fmt.Println("Result:", maxWord)
 }
 

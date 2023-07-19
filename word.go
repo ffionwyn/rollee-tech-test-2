@@ -11,8 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var maxWord string
-
 var (
 	storage     = make(map[string]int)
 	storageLock sync.RWMutex
@@ -50,39 +48,50 @@ func handleSearchWord(c *gin.Context) {
 	}
 
 	prefix = strings.ToLower(prefix)
-	maxCount := 0
+	maxWord := getMaxWordWithPrefixConcurrent(prefix)
 
-	storageLock.RLock()
-	defer storageLock.RUnlock()
-	for word, count := range storage {
-		wordLower := strings.ToLower(word)
-		if strings.HasPrefix(wordLower, prefix) && count > maxCount {
-			maxCount = count
-			maxWord = word
-		}
-	}
-
-	if maxCount == 0 {
+	if maxWord == "" {
 		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "No matching word found in the storage"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("Most frequent word with prefix '%s': %s", prefix, getMaxWordWithPrefix(prefix))})
+	c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("Most frequent word with prefix '%s': %s", prefix, maxWord)})
 	fmt.Println("Result:", maxWord)
 }
 
-func getMaxWordWithPrefix(prefix string) string {
-	var maxWord string
-	maxCount := 0
+func getMaxWordWithPrefixConcurrent(prefix string) string {
+	type result struct {
+		word  string
+		count int
+	}
+
+	results := make(chan result, len(storage))
+	var wg sync.WaitGroup
 
 	storageLock.RLock()
-	defer storageLock.RUnlock()
 	for word, count := range storage {
-		wordLower := strings.ToLower(word)
-		if strings.HasPrefix(wordLower, prefix) && count > maxCount {
-			maxWord = word
-			maxCount = count
+		wg.Add(1)
+		go func(word string, count int) {
+			defer wg.Done()
+			wordLower := strings.ToLower(word)
+			if strings.HasPrefix(wordLower, prefix) {
+				results <- result{word: word, count: count}
+			}
+		}(word, count)
+	}
+	storageLock.RUnlock()
+
+	wg.Wait()
+	close(results)
+
+	var maxWord string
+	maxCount := 0
+	for res := range results {
+		if res.count > maxCount {
+			maxWord = res.word
+			maxCount = res.count
 		}
 	}
+
 	return maxWord
 }
 

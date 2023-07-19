@@ -27,3 +27,7 @@ Bonus points:
 - Scalability
 - Performances
 
+curl -X POST "http://localhost:8080/store" -d "word=animal"
+curl "http://localhost:8080/search?prefix=an"
+
+

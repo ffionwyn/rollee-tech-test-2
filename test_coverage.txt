@@ -1,0 +1,7 @@
+rollee-tech-test-2/word.go:18:  setupRouter                     100.0%
+rollee-tech-test-2/word.go:27:  main                            0.0%
+rollee-tech-test-2/word.go:38:  handleStoreWord                 77.8%
+rollee-tech-test-2/word.go:53:  handleSearchWord                63.6%
+rollee-tech-test-2/word.go:71:  getMaxWordWithPrefixConcurrent  100.0%
+rollee-tech-test-2/word.go:108: isValidWord                     100.0%
+total:                          (statements)                    78.8%

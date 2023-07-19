@@ -30,5 +30,27 @@ func TestHandleStoreWord(t *testing.T) {
 	}
 }
 
+func TestHandleSearchWord(t *testing.T) {
+	router := gin.Default() // new gin router
+
+	storage = map[string]int{ // fake storing some words
+		"dog":  3,
+		"house": 5,
+	}
+
+	req, _ := http.NewRequest("GET", "/search?prefix=do", nil) // create a test request with "prefix" query parameter
+
+	w := httptest.NewRecorder() // perform the request and record the response
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("expected status code %d, but got %d", http.StatusOK, w.Code)
+	}
+
+	expectedMessage := "most frequent word with prefix 'do': dog"
+	if body := w.Body.String(); body != expectedMessage {
+		t.Errorf("expected response body '%s', but got '%s'", expectedMessage, body)
+	}
+}
 
 

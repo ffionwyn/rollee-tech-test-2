@@ -3,38 +3,39 @@ package main
 import (
 	"net/http"
 	"net/http/httptest"
+	"net/url"
+	"strings"
 	"testing"
-
-	"github.com/gin-gonic/gin"
 )
 
 
 func TestHandleStoreWord(t *testing.T) {
-	router := gin.Default() // new gin router
+	router := setupRouter()
 
-	req, _ := http.NewRequest("POST", "/store", nil)
-	req.Form = map[string][]string{
-		"word": {"dog"},
-	}
+	formData := url.Values{}
+	formData.Set("word", "dog")
 
-	w := httptest.NewRecorder() // perform the request and record the response
+	req, _ := http.NewRequest("POST", "/store", strings.NewReader(formData.Encode()))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
 	if w.Code != http.StatusOK {
-		t.Errorf("Expected status code %d, but got %d", http.StatusOK, w.Code)
+		t.Errorf("expected status code %d, but got %d", http.StatusOK, w.Code)
 	}
 
-	expectedMessage := "'dog' stored successfully"
+	expectedMessage := `{"message":"\"dog\" stored successfully"}`
 	if body := w.Body.String(); body != expectedMessage {
 		t.Errorf("expected response body '%s', but got '%s'", expectedMessage, body)
 	}
 }
 
 func TestHandleSearchWord(t *testing.T) {
-	router := gin.Default() // new gin router
+	router := setupRouter()
 
 	storage = map[string]int{ // fake storing some words
-		"dog":  3,
+		"dog":   3,
 		"house": 5,
 	}
 

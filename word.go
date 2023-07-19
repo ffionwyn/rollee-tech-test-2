@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"regexp"
 	"strings"
@@ -16,15 +15,24 @@ var (
 	storageLock sync.RWMutex
 )
 
-func main() {
-	go func() {
-		log.Println(http.ListenAndServe("localhost:8080", nil))
-	}()
-
+func setupRouter() *gin.Engine {
 	router := gin.Default()
 
 	router.POST("/store", handleStoreWord)
 	router.GET("/search", handleSearchWord)
+
+	return router
+}
+
+func main() {
+	router := setupRouter()
+	go func() {
+		if err := http.ListenAndServe("localhost:8080", router); err != nil {
+			panic(err)
+		}
+	}()
+
+	select {}
 }
 
 func handleStoreWord(c *gin.Context) {
@@ -39,7 +47,7 @@ func handleStoreWord(c *gin.Context) {
 	defer storageLock.Unlock()
 	storage[word]++
 
-	c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("'%s' stored successfully", word)})
+	c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("%q stored successfully", word)})
 }
 
 func handleSearchWord(c *gin.Context) {
